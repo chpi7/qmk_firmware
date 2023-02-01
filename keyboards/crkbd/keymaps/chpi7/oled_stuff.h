@@ -37,6 +37,10 @@ void oled_render_layer_state(void) {
     }
 }
 
+void oled_render_mac_mode(void) {
+    oled_write_ln_P(is_mac_mode ? PSTR("MAC") : PSTR("WIN"), false);
+}
+
 char keylog_str[24] = {};
 
 const char code_to_name[60] = {
@@ -160,6 +164,7 @@ void oled_render_logo(void) {
 bool oled_task_user(void) {
     if (is_keyboard_master()) {
         oled_render_layer_state();
+        oled_render_mac_mode();
         oled_render_keylog();
     } else {
         arasaka_text_clean();
