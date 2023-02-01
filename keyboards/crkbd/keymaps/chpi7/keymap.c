@@ -10,6 +10,8 @@
 #include QMK_KEYBOARD_H
 #include "keymap_german.h"
 
+bool is_mac_mode = false;
+
 bool is_alt_tab_active = false;
 uint16_t alt_tab_timer = 0;
 
@@ -17,6 +19,7 @@ enum custom_keycodes {
     ALT_TAB = SAFE_RANGE,
     _LOWER,
     _RAISE,
+    _TG_MAC,
 };
 
 #define L_BASEW 0
@@ -56,7 +59,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LCTL, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, DE_BSLS, DE_LBRC, DE_RBRC, DE_QUES,  KC_ENT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT,   KC_LT,   KC_GT, XXXXXXX, XXXXXXX, XXXXXXX,                      DE_TILD, DE_PIPE, DE_LCBR, DE_RCBR,  DE_GRV, KC_RSFT,
+      KC_LSFT, DE_LABK, DE_RABK, XXXXXXX, XXXXXXX, XXXXXXX,                      DE_TILD, DE_PIPE, DE_LCBR, DE_RCBR,  DE_GRV, KC_RSFT,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI, _______,  KC_SPC,     KC_ESC, _______, KC_LALT
                                       //`--------------------------'  `--------------------------'
@@ -64,11 +67,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [3] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      QK_BOOT,   DE_AT, XXXXXXX, DE_EURO,   KC_F4,   KC_F5,                      KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX,  KC_F12,  KC_DEL,
+      QK_BOOT,   DE_AT, XXXXXXX, DE_EURO,   KC_F4,   KC_F5,                      XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT,  KC_F12,  KC_DEL,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       RGB_TOG, RGB_HUI, RGB_SAI, RGB_VAI, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+      RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, XXXXXXX, XXXXXXX,                      _TG_MAC, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI, _______,  KC_SPC,     KC_ESC, _______, KC_LALT
                                       //`--------------------------'  `--------------------------'
@@ -83,7 +86,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 void stop_alt_tab(void) {
     if (!is_alt_tab_active) return;
-    unregister_code(KC_LALT);
+    unregister_code(is_mac_mode ? KC_LGUI : KC_LALT);
     is_alt_tab_active = false;
 }
 
@@ -94,6 +97,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 #endif
     switch (keycode) {
+        case _TG_MAC:
+            if (record->event.pressed) is_mac_mode = !is_mac_mode; 
+            break;
         case _LOWER:
             if (record->event.pressed) {
                 layer_on(L_LOWER);
@@ -115,7 +121,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 if (!is_alt_tab_active) {
                     is_alt_tab_active = true;
-                    register_code(KC_LALT);
+                    register_code(is_mac_mode ? KC_LGUI : KC_LALT);
                 }
                 // alt_tab_timer = timer_read();
                 register_code(KC_TAB);
