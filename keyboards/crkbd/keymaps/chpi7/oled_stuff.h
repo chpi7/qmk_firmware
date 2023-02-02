@@ -15,6 +15,7 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 #define BIT_BASEW (0)
 #define BIT_LOWER (1 << L_LOWER)
 #define BIT_RAISE (1 << L_RAISE)
+#define BIT_RAISE_MAC (1 << L_RAISE_MAC)
 #define BIT_ADJUST (1 << L_ADJUST)
 
 void oled_render_layer_state(void) {
@@ -28,6 +29,9 @@ void oled_render_layer_state(void) {
             break;
         case BIT_RAISE:
             oled_write_ln_P(PSTR("Raise"), false);
+            break;
+        case BIT_RAISE_MAC|BIT_RAISE:
+            oled_write_ln_P(PSTR("Raise-MAC"), false);
             break;
         case BIT_ADJUST: case BIT_ADJUST|BIT_LOWER:
         case BIT_ADJUST|BIT_RAISE:
