@@ -36,6 +36,7 @@ void oled_render_layer_state(void) {
         case BIT_ADJUST: case BIT_ADJUST|BIT_LOWER:
         case BIT_ADJUST|BIT_RAISE:
         case BIT_ADJUST|BIT_LOWER|BIT_RAISE:
+        case BIT_ADJUST|BIT_LOWER|BIT_RAISE|BIT_RAISE_MAC:
             oled_write_ln_P(PSTR("Adjust"), false);
             break;
     }
