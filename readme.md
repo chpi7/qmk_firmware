@@ -1,3 +1,8 @@
+# NOTES TO SELF
+1. https://docs.qmk.fm/#/newbs_getting_started <- check this to setup the environment
+2. then, use make crkbd:chpi7 to build
+3. then, use make crkbd:chpi7:avrdude to flash
+
 # Quantum Mechanical Keyboard Firmware
 
 [![Current Version](https://img.shields.io/github/tag/qmk/qmk_firmware.svg)](https://github.com/qmk/qmk_firmware/tags)
