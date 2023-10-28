@@ -5,33 +5,18 @@
 #include QMK_KEYBOARD_H
 #include "keymap_german.h"
 
-bool is_mac_mode = false;
 bool is_alt_tab_active = false;
 
 enum custom_keycodes {
     ALT_TAB = SAFE_RANGE,
-    MY_AT,
     _LOWER,
     _RAISE,
-    _TG_MAC,
 };
-
-#define RESOLVE_AT() (is_mac_mode ? A(DE_L) : DE_AT)
-
-#define HANDLE_MY_KEY(record, resolver) \
-    do { \
-        if (record->event.pressed) { \
-            register_code16(resolver()); \
-        } else { \
-            unregister_code16(resolver()); \
-        } \
-    } while (false);
 
 #define L_BASEW 0
 #define L_LOWER 1
 #define L_RAISE 2
-#define L_RAISE_MAC 3
-#define L_ADJUST 4
+#define L_ADJUST 3
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [L_BASEW] = LAYOUT_split_3x6_3(
@@ -71,25 +56,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                       //`--------------------------'  `--------------------------'
   ),
 
-  [L_RAISE_MAC] = LAYOUT_split_3x6_3(
-  //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      _______, _______, _______, _______, _______, _______,                      _______, _______, _______, _______, _______, _______,
-  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, _______, _______, _______, _______, _______,                      A(DE_L),S(A(DE_7)),A(DE_5),A(DE_6), _______, _______,
-  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, _______, _______, _______, _______, _______,                      A(DE_N), A(DE_7), A(DE_8), A(DE_9), _______, _______,
-  //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          _______, _______, _______,    _______, _______, _______
-                                      //`--------------------------'  `--------------------------'
-  ),
-
   [L_ADJUST] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      QK_BOOT,   MY_AT, XXXXXXX, DE_EURO,   KC_F4,   KC_F5,                        KC_F6, DE_UDIA, XXXXXXX, DE_ODIA,  KC_F12,  KC_DEL,
+      QK_BOOT,   DE_AT, XXXXXXX, DE_EURO,   KC_F4,   KC_F5,                        KC_F6, DE_UDIA, XXXXXXX, DE_ODIA,  KC_F12,  KC_DEL,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       RGB_TOG, DE_ADIA,   DE_SS, RGB_HUI, RGB_SAI, RGB_VAI,                      KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      RGB_MOD, XXXXXXX, XXXXXXX, RGB_HUD, RGB_SAD, RGB_VAD,                      _TG_MAC, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+      RGB_MOD, XXXXXXX, XXXXXXX, RGB_HUD, RGB_SAD, RGB_VAD,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI, _______,  KC_SPC,     KC_ESC, _______, KC_LALT
                                       //`--------------------------'  `--------------------------'
@@ -104,7 +77,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 void stop_alt_tab(void) {
     if (!is_alt_tab_active) return;
-    unregister_code(is_mac_mode ? KC_LGUI : KC_LALT);
+    unregister_code(KC_LALT);
     is_alt_tab_active = false;
 }
 
@@ -115,12 +88,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 #endif
     switch (keycode) {
-        case MY_AT:
-            HANDLE_MY_KEY(record, RESOLVE_AT);
-            return false;
-        case _TG_MAC:
-            if (record->event.pressed) is_mac_mode = !is_mac_mode; 
-            break;
         case _LOWER:
             if (record->event.pressed) {
                 layer_on(L_LOWER);
@@ -133,10 +100,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case _RAISE:
             if (record->event.pressed) {
                 layer_on(L_RAISE);
-                if (is_mac_mode) layer_on(L_RAISE_MAC);
             } else {
                 layer_off(L_RAISE);
-                layer_off(L_RAISE_MAC);
             }
             update_tri_layer(L_LOWER, L_RAISE, L_ADJUST);
             return false;
@@ -144,7 +109,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 if (!is_alt_tab_active) {
                     is_alt_tab_active = true;
-                    register_code(is_mac_mode ? KC_LGUI : KC_LALT);
+                    register_code(KC_LALT);
                 }
                 register_code(KC_TAB);
             } else {
