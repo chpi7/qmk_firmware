@@ -69,12 +69,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   )
 };
 
-#ifdef OLED_ENABLE
-#include "oled_stuff.h"
-#endif
-
-
-
 void stop_alt_tab(void) {
     if (!is_alt_tab_active) return;
     unregister_code(KC_LALT);
@@ -82,11 +76,13 @@ void stop_alt_tab(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    /*
 #ifdef OLED_ENABLE
     if (record->event.pressed) {
         set_keylog(keycode, record);
     }
 #endif
+    */
     switch (keycode) {
         case _LOWER:
             if (record->event.pressed) {
